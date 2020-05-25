@@ -1,0 +1,27 @@
+type Todo {
+  id: ID!
+  text: String!
+  done: Boolean!
+  user: User @goField(forceResolver: true)
+}
+
+input InputTodo {
+  text: String!
+  userId: Int!
+}
+
+
+input TodoFilter {
+  text: String
+  done: Boolean
+  userId: Int
+}
+
+extend type Query {
+  todos(filter: TodoFilter, limit: Int = 10, offset: Int = 0): [Todo!]!
+  todo(id: Int!): Todo!
+}
+
+extend type Mutation {
+  createTodo(input: InputTodo!): Todo!
+}
