@@ -22,6 +22,8 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input modelgen.InputT
 }
 
 func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error) {
+	// gc, err := GinContextFromContext(ctx)
+
 	f := &service.TodoFilter{
 		Limit:  limit,
 		Offset: offset,

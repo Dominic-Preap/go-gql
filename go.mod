@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/99designs/gqlgen v0.11.3
+	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
