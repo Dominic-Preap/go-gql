@@ -17,7 +17,8 @@ var ctxKey = ctxKeyType{"userCtx"}
 
 // Loaders .
 type Loaders struct {
-	UserByID *UserLoader
+	UserByID      *UserLoader
+	TodosByUserID *TodosLoader
 }
 
 // Middleware .
@@ -47,6 +48,30 @@ func Middleware(s *service.Service, next http.Handler) http.Handler {
 				result := make([]*model.User, len(keys))
 				for i, id := range keys {
 					result[i] = u[id]
+				}
+
+				return result, nil
+			},
+		}
+
+		// 1:M loader
+		ldrs.TodosByUserID = &TodosLoader{
+			wait:     wait,
+			maxBatch: 100,
+			fetch: func(keys []int) ([][]*model.Todo, []error) {
+				todos, err := s.Todo.FindAll(&service.TodoFilter{UserIDs: keys})
+				if err != nil {
+					return nil, []error{err}
+				}
+
+				t := make(map[int][]*model.Todo, len(keys))
+				for _, todo := range todos {
+					t[todo.UserID] = append(t[todo.UserID], todo)
+				}
+
+				result := make([][]*model.Todo, len(keys))
+				for i, key := range keys {
+					result[i] = t[key]
 				}
 
 				return result, nil

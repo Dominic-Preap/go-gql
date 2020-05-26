@@ -15,7 +15,7 @@ type UserFindAll struct {
 	IDs    []int
 	Name   string
 	Email  string
-	AgeGte int
+	AgeGte *int
 }
 
 // FindAll xxx
@@ -25,10 +25,10 @@ func (u *UserService) FindAll(f *UserFindAll) ([]*model.User, error) {
 	users := []*model.User{}
 
 	t := u.DB.Scopes(
-		Where("id IN (?)", f.IDs),
-		Where("name = ?", f.Name),
-		Where("email = ?", f.Email),
-		Where("age >= ?", f.AgeGte),
+		WhereSliceInt("id IN (?)", f.IDs),
+		WhereString("name = ?", f.Name),
+		WhereString("email = ?", f.Email),
+		WhereInt("age >= ?", f.AgeGte),
 	)
 
 	t = t.Order("id ASC").Find(&users)

@@ -12,14 +12,18 @@ type TodoService struct {
 
 // TodoFilter --
 type TodoFilter struct {
-	ID       int
+	ID       *int
 	Text     string
 	TextLike string
-	Done     bool
-	UserID   int
+	Done     *bool
+	UserID   *int
+	UserIDs  []int
+
+	Limit  *int
+	Offset *int
 }
 
-// FindAll xxx
+// FindAll .
 func (s *TodoService) FindAll(f *TodoFilter) ([]*model.Todo, error) {
 	todos := []*model.Todo{}
 
@@ -29,7 +33,7 @@ func (s *TodoService) FindAll(f *TodoFilter) ([]*model.Todo, error) {
 	return todos, nil
 }
 
-// FindOne xxx
+// FindOne .
 func (s *TodoService) FindOne(f *TodoFilter) (*model.Todo, error) {
 	todo := &model.Todo{}
 
@@ -47,10 +51,13 @@ func (s *TodoService) Create(todo *model.Todo) (*model.Todo, error) {
 
 func (s *TodoService) filter(f *TodoFilter) *gorm.DB {
 	return s.DB.Scopes(
-		Where("id = ?", f.ID),
-		Where("done = ?", f.Done),
-		Where("text = ?", f.Text),
-		Where("text LIKE ?", "%"+f.TextLike+"%"),
-		Where("user_id = ?", f.UserID),
+		WhereInt("id = ?", f.ID),
+		WhereBool("done = ?", f.Done),
+		WhereString("text = ?", f.Text),
+		WhereString("text LIKE ?", "%"+f.TextLike+"%"),
+		WhereInt("user_id = ?", f.UserID),
+		WhereSliceInt("user_id IN (?)", f.UserIDs),
+		Limit(f.Limit),
+		Offset(f.Offset),
 	)
 }

@@ -22,15 +22,21 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input modelgen.InputT
 }
 
 func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error) {
-	return r.Service.Todo.FindAll(&service.TodoFilter{
-		// UserID: filter.UserID,
-		// Done:   filter.Done,
-		// TextLike: filter.Text,
-	})
+	f := &service.TodoFilter{
+		Limit:  limit,
+		Offset: offset,
+	}
+	if filter != nil {
+		f.UserID = filter.UserID
+		f.Done = filter.Done
+		f.TextLike = *filter.Text
+	}
+
+	return r.Service.Todo.FindAll(f)
 }
 
 func (r *queryResolver) Todo(ctx context.Context, id int) (*model.Todo, error) {
-	return r.Service.Todo.FindOne(&service.TodoFilter{ID: id})
+	return r.Service.Todo.FindOne(&service.TodoFilter{ID: &id})
 }
 
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {

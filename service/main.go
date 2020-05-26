@@ -19,41 +19,63 @@ func InitService(db *gorm.DB) *Service {
 	}
 }
 
-// Where -
-func Where(query string, arg interface{}) func(db *gorm.DB) *gorm.DB {
+// Limit .
+func Limit(arg *int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if arg == "" || arg == 0 || arg == nil {
+
+		if arg == nil || *arg <= 0 {
 			return db
-		} else {
-			return db.Where(query, arg)
 		}
+		return db.Limit(*arg)
+	}
+}
 
-		// switch arg.(type) {
-		// case bool:
-		// 	return cast.ToBool(val)
-		// case string:
-		// 	return cast.ToString(val)
-		// case int32, int16, int8, int:
-		// 	return cast.ToInt(val)
-		// case uint:
-		// 	return cast.ToUint(val)
-		// case uint32:
-		// 	return cast.ToUint32(val)
-		// case uint64:
-		// 	return cast.ToUint64(val)
-		// case int64:
-		// 	return cast.ToInt64(val)
-		// case float64, float32:
-		// 	return cast.ToFloat64(val)
-		// case time.Time:
-		// 	return cast.ToTime(val)
-		// case time.Duration:
-		// 	return cast.ToDuration(val)
-		// case []string:
-		// 	return cast.ToStringSlice(val)
-		// case []int:
-		// 	return cast.ToIntSlice(val)
-		// }
+// Offset .
+func Offset(arg *int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if arg == nil || *arg <= 0 {
+			return db
+		}
+		return db.Offset(*arg)
+	}
+}
 
+// WhereString .
+func WhereString(query string, arg string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if arg == "" || arg == "%%" {
+			return db
+		}
+		return db.Where(query, arg)
+	}
+}
+
+// WhereInt .
+func WhereInt(query string, arg *int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if arg == nil {
+			return db
+		}
+		return db.Where(query, arg)
+	}
+}
+
+// WhereBool .
+func WhereBool(query string, arg *bool) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if arg == nil {
+			return db
+		}
+		return db.Where(query, arg)
+	}
+}
+
+// WhereSliceInt .
+func WhereSliceInt(query string, arg []int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if len(arg) <= 0 || arg == nil {
+			return db
+		}
+		return db.Where(query, arg)
 	}
 }
