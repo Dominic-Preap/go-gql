@@ -82,7 +82,7 @@ func playgroundHandler() gin.HandlerFunc {
 // Authorize GraphQL Schema via '@auth' directive,
 // so we don't have to validate everything at the Resolver level
 func authDirective(ctx context.Context, obj interface{}, next graphql.Resolver, role *modelgen.Role) (interface{}, error) {
-	if u, err := middleware.AuthUserContext(ctx); err != nil || u.Role != role.String() {
+	if u, err := middleware.GetAuthUser(ctx); err != nil || u.Role != role.String() {
 		return nil, errors.New("Access denied")
 	}
 	return next(ctx)

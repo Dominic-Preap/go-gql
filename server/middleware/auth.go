@@ -139,8 +139,8 @@ func UseAuthJWT(env config.EnvConfig, svc *service.Service) *jwt.GinJWTMiddlewar
 	return m
 }
 
-// AuthUserContext function to recover auth user from context. used mostly at Resolver level
-func AuthUserContext(ctx context.Context) (*User, error) {
+// GetAuthUser function to recover auth user from context. used mostly at Resolver level
+func GetAuthUser(ctx context.Context) (*User, error) {
 	err := errors.New("No user in context")
 
 	if ctx.Value(CurrentUserKey) == nil {

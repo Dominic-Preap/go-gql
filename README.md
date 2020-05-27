@@ -1,26 +1,67 @@
-# XXX
+<img src="https://raw.githubusercontent.com/egonelbre/gophers/ac77b513f41f44a7805694063aaef16ccd95a9b3/vector/party/birthday.svg" alt="logo" align="right" width="140" />
 
-## Getting Started
+# Graphql Go Boilerplate
 
-### Requirement
+## 📋 Introduction
 
-#### 1. Install [Air](https://github.com/cosmtrek/air) (☁️ Live reload for Go apps )
+A simple Graphql Go Http server boilerplate. This boilerplate project can be fully customized to your needs.
+
+Thanks to VSCode and Go, we can have a fully intellisense when coding. It come with `.vscode/extensions.json` for recommended extensions.
+
+## Requirements
+
+1. Download and install [Go](https://golang.org/dl/)
+2. Run the command `go get -u` to install dependencies
+3. (Opt) Install [Air](https://github.com/cosmtrek/air) if you want ☁️ Live reload
 
 ```sh
-go get -u github.com/cosmtrek/air             # Classic Go
-curl -fLo air https://git.io/darwin_air       # macOS
-curl -fLo air.exe https://git.io/windows_air  # Windows
+# install air via go commannd
+$ go get -u github.com/cosmtrek/air
 ```
 
-## Next Steps
+4. Copy `.env.example` to new env file `.env` and fill the environment variables
 
-dataloaden UserLoader int \*github.com/my/app/model.User
-go run github.com/vektah/dataloaden
+```sh
+# Application (development, production)
+ENV=development
+PORT=8080
+SECRET_KEY="5cR3t_K37"
 
-gqlgen generate
-go run main.go
+# Gorm Credential
+GORM_AUTOMIGRATE=false
+GORM_LOGMODE=true
+GORM_DIALECT=postgres
+GORM_CONNECTION_DSN="postgres://username:password@localhost:port/database"
+```
 
-go get tidy
+## Quick start
 
+```sh
+# run server and visit localhost:8080 for graphql playground
+$ go run main.go
 
-air -d
+# or run live reload go via air and visit localhost:8080
+$ air -d
+```
+
+## Features
+
+- [] TODO
+
+## Development
+
+- [] TODO
+
+```sh
+# generate dataloader file if you are using one
+$ dataloaden UserLoader int *github.com/my/app/model.User
+
+# -or-
+$ go run github.com/vektah/dataloaden UserLoader int *github.com/my/app/model.User
+
+# run command everything you're changing the Graphql Schema file *.gql
+$ gqlgen generate
+
+# clean your project dependencies
+$ go get tidy
+```

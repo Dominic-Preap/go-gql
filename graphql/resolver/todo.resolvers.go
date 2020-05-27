@@ -26,7 +26,7 @@ func (r *queryResolver) Todo(ctx context.Context, id int) (*model.Todo, error) {
 }
 
 func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error) {
-	// user, _ := middleware.AuthUserContext(ctx)
+	// user, _ := middleware.GetAuthUser(ctx)
 	// gc, _ := middleware.GetGinContext(ctx)
 
 	f := &service.TodoFilter{

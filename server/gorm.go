@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/jinzhu/gorm"
+
+	// need to import postgres driver here
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/my/app/model"
 	"github.com/my/app/server/config"

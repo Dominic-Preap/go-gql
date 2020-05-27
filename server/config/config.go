@@ -26,15 +26,9 @@ type EnvConfig struct {
 	// Database Config
 	// ---------------
 	GormAutomigrate   bool   `mapstructure:"GORM_AUTOMIGRATE"`
-	GormSeedDb        bool   `mapstructure:"GORM_SEED_DB"`
 	GormLogmode       bool   `mapstructure:"GORM_LOGMODE"`
 	GormDialect       string `validate:"required" mapstructure:"GORM_DIALECT"`
 	GormConnectionDSN string `validate:"required" mapstructure:"GORM_CONNECTION_DSN"`
-
-	// Firebase Config
-	// ---------------
-	FirebaseDBUrl          string `validate:"required" mapstructure:"FIREBASE_DB_URL"`
-	FirebaseCredentialFile string `validate:"required" mapstructure:"FIREBASE_CREDENTIAL_FILE"`
 }
 
 // LoadEnv Load environment variable from .env file
