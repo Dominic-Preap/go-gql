@@ -1,4 +1,4 @@
-package foo
+package server
 
 import (
 	"log"

@@ -1,4 +1,4 @@
-package foo
+package server
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/my/app/graphql/dataloader"
@@ -26,11 +27,11 @@ func InitServer(env EnvConfig, svc *service.Service) {
 		gin.SetMode(gin.ReleaseMode) // set gin mode to release mode on production env
 	}
 
+	r := gin.Default()            // create gin router with logger and recovery middleware
+	r.Use(corsMiddleware())       // use CORS middleware
+	r.Use(ginContextMiddleware()) // use gin context middleware for graphql context
+
 	auth := authMiddleware(env, svc) // init auth middleware that contain login handler and refresh token
-
-	r := gin.Default()            // gin router with logger and recovery (crash-free) middleware
-	r.Use(ginContextMiddleware()) // context middleware for graphql context
-
 	r.GET("/refresh_token", auth.RefreshHandler)
 	r.POST("/login", auth.LoginHandler)
 	r.POST("/query", auth.MiddlewareFunc(), graphqlHandler(svc))
@@ -66,6 +67,13 @@ func playgroundHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
+}
+
+// Defining CORS middleware
+func corsMiddleware() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	return cors.New(config)
 }
 
 /*

@@ -6,6 +6,7 @@
         "gqlgen",
         "jinzhu",
         "mitchellh",
-        "oneof"
+        "oneof",
+        "postgres"
     ]
 }
