@@ -7,11 +7,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	// ProductionEnv indicates env mode is production
+	ProductionEnv = "production"
+
+	// DevelopmentEnv indicates env mode is development
+	DevelopmentEnv = "development"
+)
+
 // EnvConfig all configuration for the server are define here
 type EnvConfig struct {
 	// General Config
 	// --------------
-	Env       string `validate:"required"`
+	Env       string `validate:"required,oneof=development production"`
 	Port      string `validate:"required"`
 	SecretKey string `validate:"required" mapstructure:"SECRET_KEY"`
 

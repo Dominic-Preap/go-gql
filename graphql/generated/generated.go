@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -43,6 +44,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver, role *modelgen.Role) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -79,8 +81,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	X(ctx context.Context) (bool, error)
-	Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error)
 	Todo(ctx context.Context, id int) (*model.Todo, error)
+	Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error)
 	Users(ctx context.Context) ([]*model.User, error)
 }
 type TodoResolver interface {
@@ -299,7 +301,16 @@ directive @goModel(model: String, models: [String!]) on OBJECT
     | UNION
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
-    | FIELD_DEFINITION`, BuiltIn: false},
+    | FIELD_DEFINITION
+
+  
+# Authorization via Custom Directives
+directive @auth(role: Role) on OBJECT | FIELD_DEFINITION
+
+enum Role {
+    ADMIN
+    USER
+}`, BuiltIn: false},
 	&ast.Source{Name: "graphql/schema/todo.gql", Input: `type Todo {
   id: ID!
   text: String!
@@ -312,7 +323,6 @@ input InputTodo {
   userId: Int!
 }
 
-
 input TodoFilter {
   text: String
   done: Boolean
@@ -320,13 +330,14 @@ input TodoFilter {
 }
 
 extend type Query {
-  todos(filter: TodoFilter, limit: Int = 10, offset: Int = 0): [Todo!]!
   todo(id: Int!): Todo!
+  todos(filter: TodoFilter, limit: Int = 10, offset: Int = 0): [Todo!]! @auth(role: ADMIN)
 }
 
 extend type Mutation {
   createTodo(input: InputTodo!): Todo!
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	&ast.Source{Name: "graphql/schema/user.gql", Input: `type User {
   id: ID!
   name: String!
@@ -344,6 +355,20 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_auth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *modelgen.Role
+	if tmp, ok := rawArgs["role"]; ok {
+		arg0, err = ec.unmarshalORole2ᚖgithubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["role"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -562,47 +587,6 @@ func (ec *executionContext) _Query_x(ctx context.Context, field graphql.Collecte
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Query",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_todos_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Todos(rctx, args["filter"].(*modelgen.TodoFilter), args["limit"].(*int), args["offset"].(*int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Todo)
-	fc.Result = res
-	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋmyᚋappᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Query_todo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -642,6 +626,71 @@ func (ec *executionContext) _Query_todo(ctx context.Context, field graphql.Colle
 	res := resTmp.(*model.Todo)
 	fc.Result = res
 	return ec.marshalNTodo2ᚖgithubᚗcomᚋmyᚋappᚋmodelᚐTodo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_todos_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Todos(rctx, args["filter"].(*modelgen.TodoFilter), args["limit"].(*int), args["offset"].(*int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalORole2ᚖgithubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Todo); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/my/app/model.Todo`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Todo)
+	fc.Result = res
+	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋmyᚋappᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2195,20 +2244,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "todos":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_todos(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
 		case "todo":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2218,6 +2253,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_todo(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "todos":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_todos(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3025,6 +3074,30 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalORole2githubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx context.Context, v interface{}) (modelgen.Role, error) {
+	var res modelgen.Role
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalORole2githubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v modelgen.Role) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalORole2ᚖgithubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx context.Context, v interface{}) (*modelgen.Role, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalORole2githubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋmyᚋappᚋgraphqlᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v *modelgen.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

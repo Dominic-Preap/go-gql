@@ -10,7 +10,6 @@ input InputTodo {
   userId: Int!
 }
 
-
 input TodoFilter {
   text: String
   done: Boolean
@@ -18,8 +17,8 @@ input TodoFilter {
 }
 
 extend type Query {
-  todos(filter: TodoFilter, limit: Int = 10, offset: Int = 0): [Todo!]!
   todo(id: Int!): Todo!
+  todos(filter: TodoFilter, limit: Int = 10, offset: Int = 0): [Todo!]! @auth(role: ADMIN)
 }
 
 extend type Mutation {

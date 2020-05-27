@@ -21,6 +21,10 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input modelgen.InputT
 	return r.Service.Todo.Create(t)
 }
 
+func (r *queryResolver) Todo(ctx context.Context, id int) (*model.Todo, error) {
+	return r.Service.Todo.FindOne(&service.TodoFilter{ID: &id})
+}
+
 func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, limit *int, offset *int) ([]*model.Todo, error) {
 	// gc, err := GinContextFromContext(ctx)
 
@@ -35,10 +39,6 @@ func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, 
 	}
 
 	return r.Service.Todo.FindAll(f)
-}
-
-func (r *queryResolver) Todo(ctx context.Context, id int) (*model.Todo, error) {
-	return r.Service.Todo.FindOne(&service.TodoFilter{ID: &id})
 }
 
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
