@@ -6,21 +6,26 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/my/app/model"
+	"github.com/my/app/server/config"
 )
 
-// ConnectDB xx
-func ConnectDB(env EnvConfig) *gorm.DB {
+// ConnectDB Connecting to a Database
+func ConnectDB(env config.EnvConfig) *gorm.DB {
 	db, err := gorm.Open(env.GormDialect, env.GormConnectionDSN)
 	if err != nil {
 		log.Panicln("[ORM] err: ", err)
 	}
 
-	// Log every SQL command on dev, @prod: this should be disabled? Maybe.
-	db.LogMode(env.GormLogmode)
+	db.LogMode(env.GormLogmode) // Log every SQL command
 
-	// Automigrate tables
 	if env.GormAutomigrate {
-		db.AutoMigrate(&model.User{}, &model.Todo{})
+		db.AutoMigrate(&model.User{}, &model.Todo{}) // Automigrate tables
+	}
+
+	// Create `uuid-ossp` if using postgres
+	// https://github.com/jinzhu/gorm/issues/1887#issuecomment-408228087
+	if db.Dialect().GetName() == "postgres" {
+		db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 	}
 
 	log.Print("[ORM] Database connection initialized.")

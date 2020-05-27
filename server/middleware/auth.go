@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
+	"github.com/my/app/server/config"
 	"github.com/my/app/service"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -24,6 +25,8 @@ import (
 | authentication middleware. https://github.com/appleboy/gin-jwt
 |
 */
+
+type key string
 
 // login body
 type login struct {
@@ -43,8 +46,8 @@ type User struct {
 // CurrentUserKey Auth user context key
 const CurrentUserKey key = "CurrentUserKey"
 
-// JWT middleware for gin
-func authMiddleware(env EnvConfig, svc *service.Service) *jwt.GinJWTMiddleware {
+// UseAuthJWT JWT middleware for gin
+func UseAuthJWT(env config.EnvConfig, svc *service.Service) *jwt.GinJWTMiddleware {
 
 	m, err := jwt.New(&jwt.GinJWTMiddleware{
 		Key:        []byte(env.SecretKey),

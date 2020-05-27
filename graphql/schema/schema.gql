@@ -7,6 +7,8 @@ type Mutation {
 }
 
 
+# gqlgen ships with some builtin directives that make it a little easier to manage wiring.
+# https://gqlgen.com/config/#inline-config-with-directives
 directive @goModel(model: String, models: [String!]) on OBJECT
     | INPUT_OBJECT
     | SCALAR
