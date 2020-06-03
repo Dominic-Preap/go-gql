@@ -4,6 +4,9 @@ import (
 	"log"
 
 	"github.com/go-playground/validator"
+	"github.com/go-redis/redis/v7"
+	"github.com/jinzhu/gorm"
+	"github.com/my/app/service"
 	"github.com/spf13/viper"
 )
 
@@ -15,13 +18,30 @@ const (
 	DevelopmentEnv = "development"
 )
 
+// Server : All of my handlers (db, redis, etc...), hang off of this Server struct
+// so these components can access the configuration data
+type Server struct {
+
+	// Configuration using viper and used in most of third party library
+	Env *EnvConfig
+
+	// GORM database instance in case we want to access to database
+	Database *gorm.DB
+
+	// Redis client
+	Client *redis.Client
+
+	// Repository functions from database models
+	Service *service.Service
+}
+
 // EnvConfig all configuration for the server are define here
 type EnvConfig struct {
 	// General Config
 	// --------------
-	Env       string `validate:"required,oneof=development production"`
-	Port      string `validate:"required"`
-	SecretKey string `validate:"required" mapstructure:"SECRET_KEY"`
+	Environment string `validate:"required,oneof=development production"`
+	Port        string `validate:"required"`
+	SecretKey   string `validate:"required" mapstructure:"SECRET_KEY"`
 
 	// Database Config
 	// ---------------
@@ -37,8 +57,8 @@ type EnvConfig struct {
 }
 
 // LoadEnv Load environment variable from .env file
-func LoadEnv() EnvConfig {
-	c := EnvConfig{}
+func LoadEnv() *EnvConfig {
+	c := &EnvConfig{}
 
 	v := viper.New()        // Create a new viper instance
 	v.SetConfigFile(".env") // name of config file (without extension)
@@ -48,7 +68,7 @@ func LoadEnv() EnvConfig {
 		log.Fatalf("Error reading config file, %s", err)
 	}
 
-	if err := v.Unmarshal(&c); err != nil {
+	if err := v.Unmarshal(c); err != nil {
 		log.Fatalf("Unable to decode config into struct, %s \n", err)
 	}
 

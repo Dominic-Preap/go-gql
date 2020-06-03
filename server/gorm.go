@@ -12,7 +12,7 @@ import (
 )
 
 // ConnectDB Connecting to a Database
-func ConnectDB(env config.EnvConfig) *gorm.DB {
+func ConnectDB(env *config.EnvConfig) *gorm.DB {
 	db, err := gorm.Open(env.GormDialect, env.GormConnectionDSN)
 	if err != nil {
 		log.Panicln("[ORM] err: ", err)

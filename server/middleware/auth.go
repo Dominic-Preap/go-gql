@@ -47,7 +47,7 @@ type User struct {
 const CurrentUserKey key = "CurrentUserKey"
 
 // UseAuthJWT JWT middleware for gin
-func UseAuthJWT(env config.EnvConfig, svc *service.Service) *jwt.GinJWTMiddleware {
+func UseAuthJWT(env *config.EnvConfig, svc *service.Service) *jwt.GinJWTMiddleware {
 
 	m, err := jwt.New(&jwt.GinJWTMiddleware{
 		Key:        []byte(env.SecretKey),

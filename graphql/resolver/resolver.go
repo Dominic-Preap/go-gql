@@ -1,8 +1,7 @@
 package resolver
 
 import (
-	"github.com/go-redis/redis/v7"
-	"github.com/my/app/service"
+	"github.com/my/app/server/config"
 )
 
 // Resolver -
@@ -11,6 +10,5 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 type Resolver struct {
-	Service *service.Service
-	Client  *redis.Client
+	*config.Server
 }

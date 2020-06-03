@@ -3,13 +3,11 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v7"
 
 	"github.com/my/app/graphql/dataloader"
 	"github.com/my/app/graphql/generated"
@@ -17,12 +15,11 @@ import (
 	"github.com/my/app/graphql/resolver"
 	"github.com/my/app/server/config"
 	"github.com/my/app/server/middleware"
-	"github.com/my/app/service"
 )
 
 // InitServer start gin server
-func InitServer(env config.EnvConfig, svc *service.Service, client *redis.Client) {
-	if env.Env == config.ProductionEnv {
+func InitServer(s *config.Server) *gin.Engine {
+	if s.Env.Environment == config.ProductionEnv {
 		gin.SetMode(gin.ReleaseMode) // set gin mode to release mode on production env
 	}
 
@@ -30,31 +27,32 @@ func InitServer(env config.EnvConfig, svc *service.Service, client *redis.Client
 	r.Use(middleware.UseCors())       // use CORS middleware
 	r.Use(middleware.UseGinContext()) // use gin context middleware for graphql context
 
-	auth := middleware.UseAuthJWT(env, svc) // init auth middleware that contain login handler and refresh token
+	auth := middleware.UseAuthJWT(s.Env, s.Service) // init auth middleware that contain login handler and refresh token
 	r.GET("/refresh_token", auth.RefreshHandler)
 	r.POST("/login", auth.LoginHandler)
-	r.POST("/query", auth.MiddlewareFunc(), graphqlHandler(svc, client))
+	r.POST("/query", auth.MiddlewareFunc(), graphqlHandler(s))
 
-	if env.Env != config.ProductionEnv {
+	if s.Env.Environment != config.ProductionEnv {
 		r.GET("/", playgroundHandler()) // Graphql Playground does not avaliable on production
 	}
 
-	log.Printf("🚀 Server ready at http://localhost:%s/", env.Port)
-	r.Run(":" + env.Port)
+	return r
+	// log.Printf("🚀 Server ready at http://localhost:%s/", env.Port)
+	// r.Run(":" + env.Port)
 }
 
 // Defining the Graphql handler
-func graphqlHandler(svc *service.Service, client *redis.Client) gin.HandlerFunc {
+func graphqlHandler(s *config.Server) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	c := generated.Config{Resolvers: &resolver.Resolver{Service: svc, Client: client}}
+	c := generated.Config{Resolvers: &resolver.Resolver{Server: s}}
 	c.Directives.Auth = authDirective // implement auth directive
 
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 
 	return func(c *gin.Context) {
 		// bind dataloader middleware on Graphql server
-		dataloader.Middleware(svc, h).ServeHTTP(c.Writer, c.Request)
+		dataloader.Middleware(s.Service, h).ServeHTTP(c.Writer, c.Request)
 		// h.ServeHTTP(c.Writer, c.Request)
 	}
 }
