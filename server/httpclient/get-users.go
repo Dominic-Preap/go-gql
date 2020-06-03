@@ -1,5 +1,7 @@
 package httpclient
 
+import "strconv"
+
 // UserResult .
 type UserResult struct {
 	Data Datum `json:"data"`
@@ -38,7 +40,7 @@ func (c HTTPClient) GetUsers(page int) (*UsersResult, error) {
 	result := &UsersResult{}
 	_, err := c.R().
 		SetResult(result).
-		SetQueryParams(map[string]string{"page": string(page)}).
+		SetQueryParams(map[string]string{"page": strconv.Itoa(page)}).
 		Get("users")
 
 	if err != nil {
@@ -50,14 +52,12 @@ func (c HTTPClient) GetUsers(page int) (*UsersResult, error) {
 
 // GetUser Get single dummy user API
 // https://reqres.in/api/users/2
-func (c HTTPClient) GetUser(ID int) (*UsersResult, error) {
-	c.SetDebug(true)
-	result := &UsersResult{}
+func (c HTTPClient) GetUser(ID int) (*UserResult, error) {
+	result := &UserResult{}
 	_, err := c.R().
-		EnableTrace().
 		SetResult(result).
-		SetPathParams(map[string]string{"id": string(ID)}).
-		Get("users/{id}/")
+		SetPathParams(map[string]string{"id": strconv.Itoa(ID)}).
+		Get("users/{id}")
 
 	if err != nil {
 		return nil, err

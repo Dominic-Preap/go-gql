@@ -27,6 +27,7 @@ func (c *GQLClient) GetCountry(code string) (*CountryData, error) {
 			}
 		}	
 	`
+	// setGraphQLVars(req, cd)
 	req := graphql.NewRequest(q)
 	req.Var("code", code)
 

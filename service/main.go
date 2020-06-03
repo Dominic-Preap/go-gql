@@ -10,8 +10,8 @@ type Service struct {
 	Todo TodoService
 }
 
-// InitService --
-func InitService(db *gorm.DB) *Service {
+// Init --
+func Init(db *gorm.DB) *Service {
 
 	return &Service{
 		User: UserService{DB: db},

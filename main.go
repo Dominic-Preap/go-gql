@@ -14,11 +14,11 @@ import (
 
 func main() {
 	env := config.LoadEnv()
-	client := ioredis.InitRedis(env)
 	db := server.ConnectDB(env)
-	svc := service.InitService(db)
+	svc := service.Init(db)
 	api := httpclient.Init(env)
 	gql := gqlclient.Init(env)
+	client := ioredis.Init(env)
 
 	s := &app.Server{
 		Env:        env,

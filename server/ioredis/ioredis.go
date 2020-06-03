@@ -10,8 +10,8 @@ import (
 	"github.com/my/app/server/config"
 )
 
-// InitRedis Create and connect to redis server
-func InitRedis(env *config.EnvConfig) *redis.Client {
+// Init Create and connect to redis server
+func Init(env *config.EnvConfig) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     env.RedisAddress,
 		Password: env.RedisPassword,
