@@ -4,6 +4,7 @@
         "Todos",
         "gonic",
         "gqlgen",
+        "ioredis",
         "jinzhu",
         "mitchellh",
         "oneof",

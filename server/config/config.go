@@ -29,6 +29,11 @@ type EnvConfig struct {
 	GormLogmode       bool   `mapstructure:"GORM_LOGMODE"`
 	GormDialect       string `validate:"required" mapstructure:"GORM_DIALECT"`
 	GormConnectionDSN string `validate:"required" mapstructure:"GORM_CONNECTION_DSN"`
+
+	// Redis Config
+	// ---------------
+	RedisAddress  string `validate:"required" mapstructure:"REDIS_ADDRESS"`
+	RedisPassword string `validate:"required" mapstructure:"REDIS_PASSWORD"`
 }
 
 // LoadEnv Load environment variable from .env file

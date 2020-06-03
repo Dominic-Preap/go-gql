@@ -8,9 +8,10 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-redis/redis/v7 v7.3.0
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jinzhu/gorm v1.9.12
-	github.com/lib/pq v1.5.2 // indirect
+	github.com/lib/pq v1.6.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.1
 	github.com/spf13/viper v1.7.0
 	github.com/vektah/gqlparser/v2 v2.0.1

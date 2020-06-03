@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v7"
 
 	"github.com/my/app/graphql/dataloader"
 	"github.com/my/app/graphql/generated"
@@ -20,7 +21,7 @@ import (
 )
 
 // InitServer start gin server
-func InitServer(env config.EnvConfig, svc *service.Service) {
+func InitServer(env config.EnvConfig, svc *service.Service, client *redis.Client) {
 	if env.Env == config.ProductionEnv {
 		gin.SetMode(gin.ReleaseMode) // set gin mode to release mode on production env
 	}
@@ -32,7 +33,7 @@ func InitServer(env config.EnvConfig, svc *service.Service) {
 	auth := middleware.UseAuthJWT(env, svc) // init auth middleware that contain login handler and refresh token
 	r.GET("/refresh_token", auth.RefreshHandler)
 	r.POST("/login", auth.LoginHandler)
-	r.POST("/query", auth.MiddlewareFunc(), graphqlHandler(svc))
+	r.POST("/query", auth.MiddlewareFunc(), graphqlHandler(svc, client))
 
 	if env.Env != config.ProductionEnv {
 		r.GET("/", playgroundHandler()) // Graphql Playground does not avaliable on production
@@ -43,10 +44,10 @@ func InitServer(env config.EnvConfig, svc *service.Service) {
 }
 
 // Defining the Graphql handler
-func graphqlHandler(svc *service.Service) gin.HandlerFunc {
+func graphqlHandler(svc *service.Service, client *redis.Client) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	c := generated.Config{Resolvers: &resolver.Resolver{Service: svc}}
+	c := generated.Config{Resolvers: &resolver.Resolver{Service: svc, Client: client}}
 	c.Directives.Auth = authDirective // implement auth directive
 
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(c))
