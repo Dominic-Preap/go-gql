@@ -4,9 +4,6 @@ import (
 	"log"
 
 	"github.com/go-playground/validator"
-	"github.com/go-redis/redis/v7"
-	"github.com/jinzhu/gorm"
-	"github.com/my/app/service"
 	"github.com/spf13/viper"
 )
 
@@ -17,23 +14,6 @@ const (
 	// DevelopmentEnv indicates env mode is development
 	DevelopmentEnv = "development"
 )
-
-// Server : All of my handlers (db, redis, etc...), hang off of this Server struct
-// so these components can access the configuration data
-type Server struct {
-
-	// Configuration using viper and used in most of third party library
-	Env *EnvConfig
-
-	// GORM database instance in case we want to access to database
-	Database *gorm.DB
-
-	// Redis client
-	Client *redis.Client
-
-	// Repository functions from database models
-	Service *service.Service
-}
 
 // EnvConfig all configuration for the server are define here
 type EnvConfig struct {

@@ -1,7 +1,7 @@
 package resolver
 
 import (
-	"github.com/my/app/server/config"
+	"github.com/my/app/server/app"
 )
 
 // Resolver -
@@ -10,5 +10,5 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 type Resolver struct {
-	*config.Server
+	*app.Server
 }

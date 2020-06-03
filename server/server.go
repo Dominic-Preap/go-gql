@@ -13,12 +13,13 @@ import (
 	"github.com/my/app/graphql/generated"
 	modelgen "github.com/my/app/graphql/model"
 	"github.com/my/app/graphql/resolver"
+	"github.com/my/app/server/app"
 	"github.com/my/app/server/config"
 	"github.com/my/app/server/middleware"
 )
 
 // InitServer start gin server
-func InitServer(s *config.Server) *gin.Engine {
+func InitServer(s *app.Server) *gin.Engine {
 	if s.Env.Environment == config.ProductionEnv {
 		gin.SetMode(gin.ReleaseMode) // set gin mode to release mode on production env
 	}
@@ -37,12 +38,10 @@ func InitServer(s *config.Server) *gin.Engine {
 	}
 
 	return r
-	// log.Printf("🚀 Server ready at http://localhost:%s/", env.Port)
-	// r.Run(":" + env.Port)
 }
 
 // Defining the Graphql handler
-func graphqlHandler(s *config.Server) gin.HandlerFunc {
+func graphqlHandler(s *app.Server) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	c := generated.Config{Resolvers: &resolver.Resolver{Server: s}}

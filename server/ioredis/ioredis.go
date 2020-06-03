@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/my/app/server/app"
 	"github.com/my/app/server/config"
 )
 
@@ -28,7 +29,7 @@ func InitRedis(env *config.EnvConfig) *redis.Client {
 }
 
 // InitRedisExpiryPubSub Create as pub/sub service.
-func InitRedisExpiryPubSub(s *config.Server) {
+func InitRedisExpiryPubSub(s *app.Server) {
 	// Keyspace notifications allow clients to subscribe to Pub/Sub channels
 	// in order to receive events affecting the Redis data set in some way.
 	s.Client.ConfigSet("notify-keyspace-events", "Ex")
@@ -64,12 +65,12 @@ func InitRedisExpiryPubSub(s *config.Server) {
 	}()
 }
 
-func reminder(s *config.Server, value string) {
+func reminder(s *app.Server, value string) {
 	// Your logic here
 	fmt.Printf("Ex Reminder: %v \n", value)
 }
 
-func notification(s *config.Server, value string) {
+func notification(s *app.Server, value string) {
 	// Your logic here
 	fmt.Printf("Ex Notification: %v \n", value)
 }

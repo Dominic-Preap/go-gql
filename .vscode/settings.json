@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
         "Gorm",
+        "Jsonplaceholder",
         "Todos",
         "gonic",
+        "gqlclient",
         "gqlgen",
         "ioredis",
         "jinzhu",
@@ -10,6 +12,7 @@
         "oneof",
         "ossp",
         "postgres",
+        "resty",
         "uuid"
     ]
 }
