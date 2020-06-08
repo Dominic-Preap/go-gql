@@ -2,12 +2,15 @@ type Todo {
   id: ID!
   text: String!
   done: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   user: User @goField(forceResolver: true)
 }
 
 input InputTodo {
   text: String!
   userId: Int!
+  createdAt: DateTime
 }
 
 input TodoFilter {

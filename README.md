@@ -61,6 +61,7 @@ $ go run github.com/vektah/dataloaden UserLoader int *github.com/my/app/model.Us
 
 # run command everything you're changing the Graphql Schema file *.gql
 $ gqlgen generate
+$ go run github.com/99designs/gqlgen generate
 
 # clean your project dependencies
 $ go get tidy

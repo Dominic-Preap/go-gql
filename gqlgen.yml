@@ -55,6 +55,9 @@ models:
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
 
+  DateTime:
+    model: github.com/my/app/graphql/scalar.DateTime
+
   User:
     model: github.com/my/app/model.User
 

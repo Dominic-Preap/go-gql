@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type InputTodo struct {
-	Text   string `json:"text"`
-	UserID int    `json:"userId"`
+	Text      string     `json:"text"`
+	UserID    int        `json:"userId"`
+	CreatedAt *time.Time `json:"createdAt"`
 }
 
 type TodoFilter struct {

@@ -6,6 +6,7 @@ type Mutation {
   x: Boolean!
 }
 
+scalar DateTime
 
 # gqlgen ships with some builtin directives that make it a little easier to manage wiring.
 # https://gqlgen.com/config/#inline-config-with-directives
