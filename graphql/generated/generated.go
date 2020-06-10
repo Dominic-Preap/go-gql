@@ -315,29 +315,23 @@ scalar DateTime
 
 # gqlgen ships with some builtin directives that make it a little easier to manage wiring.
 # https://gqlgen.com/config/#inline-config-with-directives
-directive @goModel(model: String, models: [String!]) on OBJECT
-    | INPUT_OBJECT
-    | SCALAR
-    | ENUM
-    | INTERFACE
-    | UNION
+directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 
-directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
-    | FIELD_DEFINITION
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
-  
 # Authorization via Custom Directives
 # https://www.apollographql.com/docs/apollo-server/security/authentication/#authorization-via-custom-directives
 directive @auth(role: Role) on OBJECT | FIELD_DEFINITION
 
 enum Role {
-    ADMIN
-    USER
+  ADMIN
+  USER
 }
 
 # TODO: Custom Validation Input Directives using go-playground/validator
 # https://github.com/99designs/gqlgen/issues/1084
-directive @validate(field: String!, rules: String!) on INPUT_FIELD_DEFINITION `, BuiltIn: false},
+directive @validate(field: String!, rules: String! = "required") on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+`, BuiltIn: false},
 	&ast.Source{Name: "graphql/schema/todo.gql", Input: `type Todo {
   id: ID!
   text: String!
@@ -348,7 +342,7 @@ directive @validate(field: String!, rules: String!) on INPUT_FIELD_DEFINITION `,
 }
 
 input InputTodo {
-  text: String! @validate(field: "text", rules: "min=6,email")
+  text: String! @validate(field: "text")
   userId: Int!
   createdAt: DateTime
 }
@@ -2251,7 +2245,7 @@ func (ec *executionContext) unmarshalInputInputTodo(ctx context.Context, obj int
 				if err != nil {
 					return nil, err
 				}
-				rules, err := ec.unmarshalNString2string(ctx, "min=6,email")
+				rules, err := ec.unmarshalNString2string(ctx, "required")
 				if err != nil {
 					return nil, err
 				}
