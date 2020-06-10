@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"log"
 
 	"github.com/my/app/graphql/dataloader"
 	"github.com/my/app/graphql/generated"
@@ -15,7 +14,7 @@ import (
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input modelgen.InputTodo) (*model.Todo, error) {
-	log.Printf("%+v", input)
+	// log.Printf("%+v", input)
 	t := &model.Todo{
 		UserID:    input.UserID,
 		Text:      input.Text,

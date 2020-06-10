@@ -46,7 +46,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver, role *modelgen.Role) (res interface{}, err error)
+	Auth     func(ctx context.Context, obj interface{}, next graphql.Resolver, role *modelgen.Role) (res interface{}, err error)
+	Validate func(ctx context.Context, obj interface{}, next graphql.Resolver, field string, rules string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -332,7 +333,11 @@ directive @auth(role: Role) on OBJECT | FIELD_DEFINITION
 enum Role {
     ADMIN
     USER
-}`, BuiltIn: false},
+}
+
+# TODO: Custom Validation Input Directives using go-playground/validator
+# https://github.com/99designs/gqlgen/issues/1084
+directive @validate(field: String!, rules: String!) on INPUT_FIELD_DEFINITION `, BuiltIn: false},
 	&ast.Source{Name: "graphql/schema/todo.gql", Input: `type Todo {
   id: ID!
   text: String!
@@ -343,7 +348,7 @@ enum Role {
 }
 
 input InputTodo {
-  text: String!
+  text: String! @validate(field: "text", rules: "min=6,email")
   userId: Int!
   createdAt: DateTime
 }
@@ -392,6 +397,28 @@ func (ec *executionContext) dir_auth_args(ctx context.Context, rawArgs map[strin
 		}
 	}
 	args["role"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) dir_validate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["field"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["field"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["rules"]; ok {
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rules"] = arg1
 	return args, nil
 }
 
@@ -2218,9 +2245,30 @@ func (ec *executionContext) unmarshalInputInputTodo(ctx context.Context, obj int
 		switch k {
 		case "text":
 			var err error
-			it.Text, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				field, err := ec.unmarshalNString2string(ctx, "text")
+				if err != nil {
+					return nil, err
+				}
+				rules, err := ec.unmarshalNString2string(ctx, "min=6,email")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Validate == nil {
+					return nil, errors.New("directive validate is not implemented")
+				}
+				return ec.directives.Validate(ctx, obj, directive0, field, rules)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
 				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.Text = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 			}
 		case "userId":
 			var err error

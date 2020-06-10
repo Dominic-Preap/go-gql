@@ -8,7 +8,7 @@ type Todo {
 }
 
 input InputTodo {
-  text: String!
+  text: String! @validate(field: "text", rules: "min=6,email")
   userId: Int!
   createdAt: DateTime
 }

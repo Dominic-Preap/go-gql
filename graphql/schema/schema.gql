@@ -29,3 +29,7 @@ enum Role {
     ADMIN
     USER
 }
+
+# TODO: Custom Validation Input Directives using go-playground/validator
+# https://github.com/99designs/gqlgen/issues/1084
+directive @validate(field: String!, rules: String!) on INPUT_FIELD_DEFINITION 
