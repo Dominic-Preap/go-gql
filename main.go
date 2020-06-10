@@ -9,6 +9,7 @@ import (
 	"github.com/my/app/server/gqlclient"
 	"github.com/my/app/server/httpclient"
 	"github.com/my/app/server/ioredis"
+	"github.com/my/app/server/msgbroker"
 	"github.com/my/app/service"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	api := httpclient.Init(env)
 	gql := gqlclient.Init(env)
 	client := ioredis.Init(env)
+	broker := msgbroker.Init(env)
 
 	s := &app.Server{
 		Env:        env,
@@ -27,6 +29,7 @@ func main() {
 		Service:    svc,
 		HTTPClient: api,
 		GQLClient:  gql,
+		MSGBroker:  broker,
 	}
 
 	go ioredis.InitRedisExpiryPubSub(s)

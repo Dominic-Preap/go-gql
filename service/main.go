@@ -19,6 +19,14 @@ func Init(db *gorm.DB) *Service {
 	}
 }
 
+// GormError .
+func GormError(t *gorm.DB) error {
+	if len(t.GetErrors()) > 0 {
+		return t.GetErrors()[0]
+	}
+	return nil
+}
+
 // Limit .
 func Limit(arg *int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {

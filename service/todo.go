@@ -36,11 +36,8 @@ func (s *TodoService) FindAll(f *TodoFilter) ([]*model.Todo, error) {
 // FindOne .
 func (s *TodoService) FindOne(f *TodoFilter) (*model.Todo, error) {
 	todo := &model.Todo{}
-
-	t := s.filter(f)
-	t.First(&todo)
-
-	return todo, nil
+	t := s.filter(f).First(&todo)
+	return todo, GormError(t)
 }
 
 // Create .

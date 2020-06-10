@@ -34,6 +34,12 @@ type EnvConfig struct {
 	// ---------------
 	RedisAddress  string `validate:"required" mapstructure:"REDIS_ADDRESS"`
 	RedisPassword string `validate:"required" mapstructure:"REDIS_PASSWORD"`
+
+	// Redis Config
+	// ---------------
+	MQTTHost string `validate:"required" mapstructure:"MQTT_HOST"`
+	MQTTUser string `validate:"required" mapstructure:"MQTT_USER"`
+	MQTTPass string `validate:"required" mapstructure:"MQTT_PASS"`
 }
 
 // LoadEnv Load environment variable from .env file

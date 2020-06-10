@@ -1,6 +1,7 @@
 package app
 
 import (
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/go-redis/redis/v7"
 	"github.com/jinzhu/gorm"
 	"github.com/my/app/server/config"
@@ -30,4 +31,7 @@ type Server struct {
 
 	// Graphql client for https://countries.trevorblades.com/
 	GQLClient *gqlclient.GQLClient
+
+	// MQTT Client if you need one
+	MSGBroker mqtt.Client
 }

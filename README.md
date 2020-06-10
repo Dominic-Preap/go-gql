@@ -4,7 +4,7 @@
 
 ## 📋 Introduction
 
-A simple Graphql Go Http server boilerplate. This boilerplate project can be fully customized to your needs.
+A simple Graphql Go HTTP server boilerplate. This boilerplate project can be fully customized to your needs.
 
 Thanks to VSCode and Go, we can have a fully intellisense when coding. It come with `.vscode/extensions.json` for recommended extensions.
 
@@ -28,7 +28,6 @@ PORT=8080
 SECRET_KEY="5cR3t_K37"
 
 # Gorm Credential
-GORM_AUTOMIGRATE=false
 GORM_LOGMODE=true
 GORM_DIALECT=postgres
 GORM_CONNECTION_DSN="postgres://username:password@localhost:port/database"
@@ -61,7 +60,7 @@ $ go run github.com/vektah/dataloaden UserLoader int *github.com/my/app/model.Us
 
 # run command everything you're changing the Graphql Schema file *.gql
 $ gqlgen generate
-$ go run github.com/99designs/gqlgen generate
+$ go run github.com/99designs/gqlgen
 
 # clean your project dependencies
 $ go get tidy

@@ -9,6 +9,7 @@
         "ioredis",
         "jinzhu",
         "mitchellh",
+        "mqtt",
         "oneof",
         "ossp",
         "postgres",
