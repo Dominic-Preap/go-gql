@@ -7,6 +7,7 @@ type Mutation {
 }
 
 scalar DateTime
+scalar Any
 
 # gqlgen ships with some builtin directives that make it a little easier to manage wiring.
 # https://gqlgen.com/config/#inline-config-with-directives
@@ -26,3 +27,5 @@ enum Role {
 # TODO: Custom Validation Input Directives using go-playground/validator
 # https://github.com/99designs/gqlgen/issues/1084
 directive @validate(field: String!, rules: String! = "required") on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @requiredIf(field: String!, value: Any) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION

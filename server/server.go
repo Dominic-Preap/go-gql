@@ -41,8 +41,9 @@ func graphqlHandler(s *app.Server) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	c := generated.Config{Resolvers: &resolver.Resolver{Server: s}}
-	c.Directives.Auth = directive.AuthDirective         // implement auth directive
-	c.Directives.Validate = directive.ValidateDirective // implement validate directive
+	c.Directives.Auth = directive.AuthDirective             // implement auth directive
+	c.Directives.Validate = directive.ValidateDirective     // implement validate directive
+	c.Directives.RequiredIf = directive.RequiredIfDirective // implement validate directive
 
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 
