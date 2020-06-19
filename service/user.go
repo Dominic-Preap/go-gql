@@ -10,35 +10,44 @@ type UserService struct {
 	DB *gorm.DB
 }
 
-// UserFindAll --
-type UserFindAll struct {
+// UserFilter --
+type UserFilter struct {
 	IDs    []int
 	Name   string
 	Email  string
 	AgeGte *int
+
+	Limit  *int
+	Offset *int
 }
 
 // FindAll xxx
-func (u *UserService) FindAll(f *UserFindAll) ([]*model.User, error) {
+func (s *UserService) FindAll(f *UserFilter) ([]*model.User, error) {
 	// log.Printf("user opt: %+v", f)
 
 	users := []*model.User{}
 
-	t := u.DB.Scopes(
-		WhereSliceInt("id IN (?)", f.IDs),
-		WhereString("name = ?", f.Name),
-		WhereString("email = ?", f.Email),
-		WhereInt("age >= ?", f.AgeGte),
-	)
-
-	t = t.Order("id ASC").Find(&users)
+	t := s.filter(f)
+	t.Order("id ASC").Find(&users)
 
 	return users, nil
 }
 
 // FindOne xxx
-func (u *UserService) FindOne(f *UserFindAll) (*model.User, error) {
+func (s *UserService) FindOne(f *UserFilter) (*model.User, error) {
+
 	user := &model.User{}
-	u.DB.First(&user)
-	return user, nil
+	t := s.filter(f).First(&user)
+	return user, GormError(t)
+}
+
+func (s *UserService) filter(f *UserFilter) *gorm.DB {
+	return s.DB.Scopes(
+		WhereSliceInt("id IN (?)", f.IDs),
+		WhereString("name = ?", f.Name),
+		WhereString("email = ?", f.Email),
+		WhereInt("age >= ?", f.AgeGte),
+		Limit(f.Limit),
+		Offset(f.Offset),
+	)
 }

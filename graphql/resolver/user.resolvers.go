@@ -13,7 +13,7 @@ import (
 )
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return r.Service.User.FindAll(&service.UserFindAll{})
+	return r.Service.User.FindAll(&service.UserFilter{})
 }
 
 func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {

@@ -34,7 +34,7 @@ func Middleware(s *service.Service, next http.Handler) http.Handler {
 			wait:     wait,
 			maxBatch: 100,
 			fetch: func(keys []int) ([]*model.User, []error) {
-				users, err := s.User.FindAll(&service.UserFindAll{IDs: keys})
+				users, err := s.User.FindAll(&service.UserFilter{IDs: keys})
 
 				if err != nil {
 					return nil, []error{err}

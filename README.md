@@ -64,4 +64,8 @@ $ go run github.com/99designs/gqlgen
 
 # clean your project dependencies
 $ go get tidy
+
+# running unit test
+$ go test -timeout 30s -coverprofile=c.out ./... && go tool cover -html=c.out
+$ goconvey
 ```

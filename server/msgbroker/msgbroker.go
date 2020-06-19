@@ -2,8 +2,6 @@ package msgbroker
 
 import (
 	"fmt"
-	"log"
-	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/my/app/server/config"
@@ -15,10 +13,10 @@ func Init(env *config.EnvConfig) mqtt.Client {
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 
-	for !token.WaitTimeout(3 * time.Second) {
-	}
-	if err := token.Error(); err != nil {
-		log.Panic(err)
+	if token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	} else {
+		fmt.Printf("Connected to server\n")
 	}
 	return client
 }
@@ -28,6 +26,6 @@ func createClientOptions(env *config.EnvConfig) *mqtt.ClientOptions {
 	opts.AddBroker(fmt.Sprintf("tcp://%s", env.MQTTHost))
 	opts.SetUsername(env.MQTTUser)
 	opts.SetPassword(env.MQTTPass)
-	opts.SetClientID("pub")
+	// opts.SetClientID("pub")
 	return opts
 }
