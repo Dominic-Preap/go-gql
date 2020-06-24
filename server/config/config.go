@@ -1,9 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 )
 
@@ -43,7 +44,7 @@ type EnvConfig struct {
 }
 
 // LoadEnv Load environment variable from .env file
-func LoadEnv() *EnvConfig {
+func LoadEnv() (*EnvConfig, error) {
 	c := &EnvConfig{}
 
 	v := viper.New()        // Create a new viper instance
@@ -51,19 +52,19 @@ func LoadEnv() *EnvConfig {
 	v.SetConfigType("env")  // if the config file does not have the extension in the name
 
 	if err := v.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		return nil, fmt.Errorf("Error reading config file, %s", err)
 	}
 
 	if err := v.Unmarshal(c); err != nil {
-		log.Fatalf("Unable to decode config into struct, %s \n", err)
+		return nil, fmt.Errorf("Unable to decode config into struct, %s", err)
 	}
 
 	if err := validator.New().Struct(c); err != nil {
 		for _, e := range err.(validator.ValidationErrors) {
 			log.Printf(`Error:Field "%[2]v" on "%[1]v"`, e.StructField(), e.ActualTag())
 		}
-		log.Fatal("Please check your .env file again")
+		return nil, fmt.Errorf("Please check your .env file again")
 	}
 
-	return c
+	return c, nil
 }

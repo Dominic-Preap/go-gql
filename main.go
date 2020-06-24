@@ -14,7 +14,11 @@ import (
 )
 
 func main() {
-	env := config.LoadEnv()
+	env, err := config.LoadEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db := server.ConnectDB(env)
 	svc := service.Init(db)
 	api := httpclient.Init(env)
