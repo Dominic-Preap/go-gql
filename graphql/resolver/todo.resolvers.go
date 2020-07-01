@@ -38,7 +38,7 @@ func (r *queryResolver) Todos(ctx context.Context, filter *modelgen.TodoFilter, 
 	if filter != nil {
 		f.UserID = filter.UserID
 		f.Done = filter.Done
-		f.TextLike = *filter.Text
+		f.TextLike = filter.Text
 	}
 
 	return r.Service.Todo.FindAll(f)

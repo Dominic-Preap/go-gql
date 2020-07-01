@@ -20,7 +20,7 @@ func TestTodoRepository(t *testing.T) {
 
 			s.mock.ExpectQuery(regexp.QuoteMeta(sql)).WithArgs(text)
 
-			res, err := s.service.Todo.FindOne(&TodoFilter{Text: text})
+			res, err := s.service.Todo.FindOne(&TodoFilter{Text: &text})
 			So(err, ShouldNotBeNil)
 			So(res, ShouldResemble, &model.Todo{})
 		})
@@ -38,7 +38,7 @@ func TestTodoRepository(t *testing.T) {
 				WithArgs(text).
 				WillReturnRows(rows)
 
-			res, err := s.service.Todo.FindOne(&TodoFilter{Text: text})
+			res, err := s.service.Todo.FindOne(&TodoFilter{Text: &text})
 			So(err, ShouldBeNil)
 			So(res, ShouldResemble, &model.Todo{ID: id, Text: text})
 		})
@@ -59,7 +59,7 @@ func TestTodoRepository(t *testing.T) {
 				WithArgs(text).
 				WillReturnRows(rows)
 
-			res, err := s.service.Todo.FindAll(&TodoFilter{Text: text, Limit: &limit, Offset: &offset})
+			res, err := s.service.Todo.FindAll(&TodoFilter{Text: &text, Limit: &limit, Offset: &offset})
 			So(err, ShouldBeNil)
 			So(res, ShouldResemble, append(todos, &model.Todo{ID: id, Text: text}))
 		})

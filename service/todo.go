@@ -13,8 +13,8 @@ type TodoService struct {
 // TodoFilter --
 type TodoFilter struct {
 	ID       *int
-	Text     string
-	TextLike string
+	Text     *string
+	TextLike *string
 	Done     *bool
 	UserID   *int
 	UserIDs  []int
@@ -51,7 +51,7 @@ func (s *TodoService) filter(f *TodoFilter) *gorm.DB {
 		WhereInt("id = ?", f.ID),
 		WhereBool("done = ?", f.Done),
 		WhereString("text = ?", f.Text),
-		WhereString("text LIKE ?", "%"+f.TextLike+"%"),
+		WhereString("text LIKE ?", Like(f.TextLike)),
 		WhereInt("user_id = ?", f.UserID),
 		WhereSliceInt("user_id IN (?)", f.UserIDs),
 		Limit(f.Limit),

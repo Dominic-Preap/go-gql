@@ -49,9 +49,9 @@ func Offset(arg *int) func(db *gorm.DB) *gorm.DB {
 }
 
 // WhereString .
-func WhereString(query string, arg string) func(db *gorm.DB) *gorm.DB {
+func WhereString(query string, arg *string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if arg == "" || arg == "%%" {
+		if arg == nil || *arg == "" || *arg == "%%" {
 			return db
 		}
 		return db.Where(query, arg)
@@ -101,4 +101,13 @@ func WhereSliceString(query string, arg interface{}) func(db *gorm.DB) *gorm.DB 
 		}
 		return db.Where(query, arg)
 	}
+}
+
+// Like .
+func Like(arg *string) *string {
+	like := ""
+	if arg != nil {
+		like = "%" + *arg + "%"
+	}
+	return &like
 }

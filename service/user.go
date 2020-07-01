@@ -13,8 +13,8 @@ type UserService struct {
 // UserFilter --
 type UserFilter struct {
 	IDs    []int
-	Name   string
-	Email  string
+	Name   *string
+	Email  *string
 	AgeGte *int
 
 	Limit  *int
