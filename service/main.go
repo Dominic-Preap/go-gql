@@ -1,23 +1,57 @@
 package service
 
 import (
-	"log"
+	"reflect"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jinzhu/gorm"
 )
 
-// Service --
+// Total .
+type Total struct {
+	total int
+}
+
+// Service .
 type Service struct {
 	User UserService
 	Todo TodoService
 }
 
-// Init --
+// Init .
 func Init(db *gorm.DB) *Service {
 	return &Service{
 		User: UserService{DB: db},
 		Todo: TodoService{DB: db},
 	}
+}
+
+// Cond verify if condition is valid to add to SQL statement
+func Cond(pred sq.Sqlizer, byPass bool) sq.Sqlizer {
+	if byPass {
+		return sq.Expr("")
+	}
+	return pred
+}
+
+// Like .
+func Like(arg *string) *string {
+	like := ""
+	if arg != nil {
+		like = "%" + *arg + "%"
+	}
+	return &like
+}
+
+// LimitOffset set limit and offset to SQL if value exist
+func LimitOffset(q sq.SelectBuilder, limit *int, offset *int) sq.SelectBuilder {
+	if limit != nil {
+		q.Limit(uint64(*limit))
+	}
+	if offset != nil {
+		q.Offset(uint64(*offset))
+	}
+	return q
 }
 
 // GormError .
@@ -28,86 +62,22 @@ func GormError(t *gorm.DB) error {
 	return nil
 }
 
-// Limit .
-func Limit(arg *int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if arg == nil || *arg <= 0 {
-			return db
-		}
-		return db.Limit(*arg)
-	}
+// ==============================
+// HELPER
+// ==============================
+
+// IsNull .
+func IsNull(arg interface{}) bool {
+	r := reflect.ValueOf(arg)
+	return r.IsNil()
 }
 
-// Offset .
-func Offset(arg *int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if arg == nil || *arg <= 0 {
-			return db
-		}
-		return db.Offset(*arg)
-	}
+// IsNullOrEmpty .
+func IsNullOrEmpty(arg *string) bool {
+	return arg == nil || *arg == ""
 }
 
-// WhereString .
-func WhereString(query string, arg *string) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if arg == nil || *arg == "" || *arg == "%%" {
-			return db
-		}
-		return db.Where(query, arg)
-	}
-}
-
-// WhereInt .
-func WhereInt(query string, arg *int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if arg == nil {
-			return db
-		}
-		return db.Where(query, arg)
-	}
-}
-
-// WhereBool .
-func WhereBool(query string, arg *bool) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if arg == nil {
-			return db
-		}
-		return db.Where(query, arg)
-	}
-}
-
-// WhereSliceInt .
-func WhereSliceInt(query string, arg []int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if len(arg) <= 0 || arg == nil {
-			return db
-		}
-		return db.Where(query, arg)
-	}
-}
-
-// WhereSliceString .
-func WhereSliceString(query string, arg interface{}) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		v, err := arg.([]string)
-		if err {
-			log.Printf("Error Query: %[1]v, %[2]v", query, arg)
-		}
-
-		if len(v) <= 0 || arg == nil {
-			return db
-		}
-		return db.Where(query, arg)
-	}
-}
-
-// Like .
-func Like(arg *string) *string {
-	like := ""
-	if arg != nil {
-		like = "%" + *arg + "%"
-	}
-	return &like
+// IsEmpty .
+func IsEmpty(arg *string) bool {
+	return *arg == ""
 }

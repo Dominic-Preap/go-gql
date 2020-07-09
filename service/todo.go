@@ -1,8 +1,12 @@
 package service
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
 	"github.com/my/app/model"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 // TodoService .
@@ -25,18 +29,65 @@ type TodoFilter struct {
 
 // FindAll .
 func (s *TodoService) FindAll(f *TodoFilter) ([]*model.Todo, error) {
+	q := sq.Select("*").From("todos")
+	q = s.filter(q, f)
+	q = LimitOffset(q, f.Limit, f.Offset)
+
 	todos := []*model.Todo{}
+	t := s.DB.Raw(q.MustSql()).Find(&todos)
+	return todos, GormError(t)
+}
 
-	t := s.filter(f)
-	t.Order("id ASC").Find(&todos)
+// Count .
+func (s *TodoService) Count(f *TodoFilter) (int, error) {
+	q := sq.Select("COUNT(*) AS total").From("todos")
+	q = s.filter(q, f)
 
-	return todos, nil
+	x := Total{}
+	t := s.DB.Raw(q.MustSql()).Find(&x)
+	return x.total, GormError(t)
+}
+
+type FindAllXResult struct {
+	Data []*model.Todo
+	Err  error
+}
+
+// FindAllX .
+func (s *TodoService) FindAllX(f *TodoFilter) <-chan FindAllXResult {
+	r := make(chan FindAllXResult)
+	go func() {
+		// defer close(r)
+		data, err := s.FindAll(f)
+		r <- FindAllXResult{data, err}
+	}()
+	return r
+
+}
+
+// FindAndCountAll .
+func (s *TodoService) FindAndCountAll(f *TodoFilter) ([]*model.Todo, int, error) {
+
+	c, _ := s.FindAll(f)
+	a, _ := s.FindAll(f)
+	x, _ := s.FindAll(f)
+	y, _ := s.FindAll(f)
+	d, _ := s.FindAll(f)
+	e, _ := s.FindAll(f)
+	z, _ := s.FindAll(f)
+
+	log.Print(a, c, x, y, z, d, e)
+
+	return []*model.Todo{}, 0, nil
 }
 
 // FindOne .
 func (s *TodoService) FindOne(f *TodoFilter) (*model.Todo, error) {
+	q := sq.Select("*").From("todos").Limit(1)
+	q = s.filter(q, f)
+
 	todo := &model.Todo{}
-	t := s.filter(f).First(&todo)
+	t := s.DB.Raw(q.MustSql()).First(&todo)
 	return todo, GormError(t)
 }
 
@@ -46,15 +97,14 @@ func (s *TodoService) Create(todo *model.Todo) (*model.Todo, error) {
 	return todo, err
 }
 
-func (s *TodoService) filter(f *TodoFilter) *gorm.DB {
-	return s.DB.Scopes(
-		WhereInt("id = ?", f.ID),
-		WhereBool("done = ?", f.Done),
-		WhereString("text = ?", f.Text),
-		WhereString("text LIKE ?", Like(f.TextLike)),
-		WhereInt("user_id = ?", f.UserID),
-		WhereSliceInt("user_id IN (?)", f.UserIDs),
-		Limit(f.Limit),
-		Offset(f.Offset),
-	)
+func (s *TodoService) filter(q sq.SelectBuilder, f *TodoFilter) sq.SelectBuilder {
+	return q.PlaceholderFormat(sq.Dollar).
+		Where(sq.NotEq{"id": nil}).
+		Where(Cond(sq.Eq{"id": f.ID}, IsNull(f.ID))).
+		Where(Cond(sq.Eq{"done": f.Done}, IsNull(f.Done))).
+		Where(Cond(sq.Eq{"text": f.Text}, IsNullOrEmpty(f.Text))).
+		Where(Cond(sq.ILike{"text": Like(f.TextLike)}, IsNullOrEmpty(f.TextLike))).
+		Where(Cond(sq.Eq{"user_id": f.UserID}, IsNull(f.UserID))).
+		Where(Cond(sq.Eq{"user_id": f.UserIDs}, IsNull(f.UserIDs))).
+		OrderBy("id ASC")
 }

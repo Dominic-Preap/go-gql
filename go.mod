@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/99designs/gqlgen v0.11.3
+	github.com/Masterminds/squirrel v1.4.0
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/gin-contrib/cors v1.3.1
