@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
@@ -16,12 +17,28 @@ const (
 	DevelopmentEnv = "development"
 )
 
+// BindEnv .
+var BindEnv = []string{
+	"ENVIRONMENT",
+	"PORT",
+	"SECRET_KEY",
+	"GORM_AUTOMIGRATE",
+	"GORM_LOGMODE",
+	"GORM_DIALECT",
+	"GORM_CONNECTION_DSN",
+	"REDIS_ADDRESS",
+	"REDIS_PASSWORD",
+	"MQTT_HOST",
+	"MQTT_USER",
+	"MQTT_PASS",
+}
+
 // EnvConfig all configuration for the server are define here
 type EnvConfig struct {
 	// General Config
 	// --------------
-	Environment string `validate:"required,oneof=development production"`
-	Port        string `validate:"required"`
+	Environment string `validate:"required,oneof=development production" mapstructure:"ENVIRONMENT"`
+	Port        string `validate:"required" mapstructure:"PORT"`
 	SecretKey   string `validate:"required" mapstructure:"SECRET_KEY"`
 
 	// Database Config
@@ -47,12 +64,18 @@ type EnvConfig struct {
 func LoadEnv() (*EnvConfig, error) {
 	c := &EnvConfig{}
 
-	v := viper.New()        // Create a new viper instance
-	v.SetConfigFile(".env") // name of config file (without extension)
-	v.SetConfigType("env")  // if the config file does not have the extension in the name
-
-	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("Error reading config file, %s", err)
+	v := viper.New() // Create a new viper instance
+	if os.Getenv("ENVIRONMENT") == DevelopmentEnv {
+		v.SetConfigFile(".env") // name of config file (without extension)
+		v.SetConfigType("env")  // if the config file does not have the extension in the name
+		if err := v.ReadInConfig(); err != nil {
+			return nil, fmt.Errorf("Error reading config file, %s", err)
+		}
+	} else {
+		v.AutomaticEnv()
+		for _, key := range BindEnv {
+			v.BindEnv(key)
+		}
 	}
 
 	if err := v.Unmarshal(c); err != nil {
