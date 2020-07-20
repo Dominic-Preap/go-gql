@@ -21,7 +21,7 @@ func TestUserRepository(t *testing.T) {
 
 			s.mock.ExpectQuery(regexp.QuoteMeta(sql)).WithArgs(name)
 
-			res, err := s.service.User.FindOne(&UserFilter{Name: name})
+			res, err := s.service.User.FindOne(&UserFilter{Name: &name})
 			So(err, ShouldNotBeNil)
 			So(res, ShouldResemble, &model.User{})
 		})
@@ -39,7 +39,7 @@ func TestUserRepository(t *testing.T) {
 				WithArgs(name).
 				WillReturnRows(rows)
 
-			res, err := s.service.User.FindOne(&UserFilter{Name: name})
+			res, err := s.service.User.FindOne(&UserFilter{Name: &name})
 			So(err, ShouldBeNil)
 			So(res, ShouldResemble, &model.User{ID: id, Name: name})
 		})
@@ -60,7 +60,7 @@ func TestUserRepository(t *testing.T) {
 				WithArgs(name).
 				WillReturnRows(rows)
 
-			res, err := s.service.User.FindAll(&UserFilter{Name: name, Limit: &limit, Offset: &offset})
+			res, err := s.service.User.FindAll(&UserFilter{Name: &name, Limit: &limit, Offset: &offset})
 			So(err, ShouldBeNil)
 			So(res, ShouldResemble, append(users, &model.User{ID: id, Name: name}))
 		})
